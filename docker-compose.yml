@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  ch-node1:
+    image: clickhouse/clickhouse-server:latest
+    container_name: ch-node1
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    environment:
+      - CLICKHOUSE_USER=default
+      - CLICKHOUSE_PASSWORD=secret_password
+      - CH_SHARD=1
+      - CH_REPLICA=ch-node1
+      - CH_KEEPER_ID=1
+    volumes:
+      - ch_node1_data:/var/lib/clickhouse
+      - ./cluster-config.xml:/etc/clickhouse-server/config.d/cluster-config.xml
+      - ./ddl/messages_mart.sql:/docker-entrypoint-initdb.d/messages_mart.sql
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8123/ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  ch-node2:
+    image: clickhouse/clickhouse-server:latest
+    container_name: ch-node2
+    ports:
+      - "8124:8123"
+    environment:
+      - CLICKHOUSE_USER=default
+      - CLICKHOUSE_PASSWORD=secret_password
+      - CH_SHARD=2
+      - CH_REPLICA=ch-node2
+      - CH_KEEPER_ID=2
+    volumes:
+      - ch_node2_data:/var/lib/clickhouse
+      - ./cluster-config.xml:/etc/clickhouse-server/config.d/cluster-config.xml
+
+  ch-node3:
+    image: clickhouse/clickhouse-server:latest
+    container_name: ch-node3
+    ports:
+      - "8125:8123"
+    environment:
+      - CLICKHOUSE_USER=default
+      - CLICKHOUSE_PASSWORD=secret_password
+      - CH_SHARD=3
+      - CH_REPLICA=ch-node3
+      - CH_KEEPER_ID=3 
+    volumes:
+      - ch_node3_data:/var/lib/clickhouse
+      - ./cluster-config.xml:/etc/clickhouse-server/config.d/cluster-config.xml
+
+  superset:
+    build: ./superset 
+    container_name: superset
+    ports:
+      - "8088:8088"
+    volumes:
+      - superset_home:/app/superset_home
+      - ./superset/superset_init.sh:/app/superset_init.sh
+      - ./superset/dashboard_export.zip:/app/dashboard_export.zip
+    environment:
+      - SUPERSET_SECRET_KEY=super_secret_key_for_test_task_12345
+      - TALISMAN_CONFIG={"content_security_policy":null}
+    command: bash /app/superset_init.sh
+
+volumes:
+  ch_node1_data:
+  ch_node2_data:
+  ch_node3_data:
+  superset_home:

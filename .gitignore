@@ -1,0 +1,12 @@
+# Локальный кэш анализаторов и Python
+.mypy_cache/
+__pycache__/
+*.pyc
+
+# Временные файлы и мусор
+CACHEDIR.TAG
+requirements-local.txt
+
+# Локальные конфиги IDE (если пользуешься VS Code или PyCharm)
+.vscode/
+.idea/
