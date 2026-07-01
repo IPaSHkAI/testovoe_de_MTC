@@ -25,7 +25,7 @@
 
 Разверните распределенный кластер и BI-инструмент. Команда поднимет все ноды ClickHouse, ZooKeeper и контейнер Superset:
 ```bash
-docker compose -f docker-compose-cluster.yml up -d
+docker compose -f docker-compose.yml up -d
 ```
 Убедитесь, что все контейнеры перешли в статус Up (healthy).
 
